@@ -33,7 +33,8 @@ export default {
   plugins: [
     '@/plugins/element-ui',
     //本地存储插件
-    { src: '@/plugins/localStorage', ssr: false }
+    { src: '@/plugins/localStorage', ssr: false },
+    '@/plugins/axios'
   ],
   /*
   ** Nuxt.js dev-modules

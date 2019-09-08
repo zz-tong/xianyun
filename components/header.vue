@@ -27,7 +27,7 @@
             <img :src="`${$axios.defaults.baseURL}${$store.state.user.userInfo.user.defaultAvatar}`">
             <!-- 昵称 -->
             <span>{{$store.state.user.userInfo.user.nickname}}</span>
-            <i class="el-icon-arrow-down el-icon--right"></i>
+            <i class="el-icon-arrow-down el-icon--right"></i> 
           </span>
           <el-dropdown-menu slot="dropdown">
             <el-dropdown-item>个人中心</el-dropdown-item>
