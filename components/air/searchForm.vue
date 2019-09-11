@@ -17,10 +17,12 @@
       <el-form-item label="出发城市">
         <!-- fetch-suggestions 返回输入建议的方法 -->
         <!-- select 点击选中建议项时触发 -->
+        <!-- @blur="handleDepartBlur"  处理表单搜失焦原来的bug -->
         <el-autocomplete
           :fetch-suggestions="queryDepartSearch"
           placeholder="请搜索出发城市"
           @select="handleDepartSelect"
+          @blur="handleDepartBlur"
           v-model="form.departCity"
           class="el-autocomplete"
         ></el-autocomplete>
@@ -30,7 +32,8 @@
         <el-autocomplete
           :fetch-suggestions="queryDestSearch"
           placeholder="请搜索到达城市"
-          @select="handleDestSelect"
+          @select="handleDestSelect" 
+          @blur="handleDestBlur"
           v-model="form.destCity"
           class="el-autocomplete"
         ></el-autocomplete>
@@ -75,14 +78,17 @@ export default {
         { icon: "iconfont iconshuangxiang", name: "往返" }
       ],
       //tab栏索引
-      currentTab: 0
+      currentTab: 0,
+
+      departData: [], //存储后台返回出发城市的数组
+      destData: [] //存储后台返回到达城市的数组
     };
   },
   methods: {
     // tab切换时触发
-    handleSearchTab(index) {
+    handleSearchTab(item, index) {
       //this.currentTab = index; //这暂时不做点击切换
-      //切换到往返
+      //切换到往返给弹框提示
       if (index === 1) {
         this.$confirm("目前暂不支持往返，请使用单程选票！", "提示", {
           confirmButtonText: "确定",
@@ -121,13 +127,23 @@ export default {
           // 把带有value属性的对象添加到新数组中
           newData.push(v);
         });
-        // 默认选中第一个:出发城市名称及成代码
-        this.form.departCity = newData[0].value;
-        this.form.departCode = newData[0].sort;
+        // 默认选中第一个:出发城市名称及成代码,这里有个bug
+        // this.form.departCity = newData[0].value;
+        // this.form.departCode = newData[0].sort;
+
+        // 把上面转换后的数组赋值给data
+        this.departData = newData;
 
         // 把获取过来的显示在下列列表中
         cb(newData);
       });
+    },
+
+    // 处理默认选择第一的bug,retur上面给一个空的数组
+    //出发城市输入框失去焦点时候的触发
+    handleDepartBlur() {
+      this.form.departCity = this.departData[0] ? this.departData[0].value : ""; //使用三元表达,如果有第0个就给它返回一个,如果没有就返回一个空的字符串
+      this.form.departCode = this.departData[0] ? this.departData[0].sort : "";
     },
 
     // 出发城市下拉选择时触发
@@ -166,17 +182,26 @@ export default {
           // 把带有value属性的对象添加到新数组中
           newData.push(v);
         });
-        // 默认选中第一个:出发城市名称及成代码
-        this.form.destCity = newData[0].value;
-        this.form.destCode = newData[0].sort;
+        // // 默认选中第一个:出发城市名称及成代码
+        // this.form.destCity = newData[0].value;
+        // this.form.destCode = newData[0].sort;
+
+        // 把上面转换后的数组赋值给data
+        this.destData = newData;
 
         // 把获取过来的显示在下列列表中
         cb(newData);
       });
     },
+
+    // 处理默认选择第一的bug,retur上面给一个空的数组
+    //到达城市输入框失去焦点时候的触发
+    handleDestBlur() {
+      this.form.departCity = this.departData[0] ? this.departData[0].value : ""; //使用三元表达,如果有第0个就给它返回一个,如果没有就返回一个空的字符串
+      this.form.departCode = this.departData[0] ? this.departData[0].sort : "";
+    },
     // 到达城市下拉选择时触发
     handleDestSelect(item) {
-      console.log(item);
       this.form.destCity = item.value;
       this.form.destCode = item.sort;
     },
@@ -209,18 +234,17 @@ export default {
       if (!departCity) {
         this.$alert("出发城市不能为空", "提示");
         return;
-      };
+      }
 
       if (!destCity) {
         this.$alert("到达城市不能为空", "提示");
         return;
-      };
+      }
 
       if (!departDate) {
         this.$alert("出发日期不能为空", "提示");
         return;
-      };
-
+      }
 
       // 跳转到机票列表页 /air/flights
       this.$router.push({
